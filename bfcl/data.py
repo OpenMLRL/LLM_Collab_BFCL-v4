@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence
 
-from datasets import Dataset, load_dataset
+from datasets import load_dataset
 
 
 def _as_list(value: Any) -> Optional[List[str]]:
@@ -80,7 +80,7 @@ def load_bfcl_dataset(
     categories: Optional[Any] = None,
     task_types: Optional[Any] = None,
     max_samples: Optional[int] = None,
-) -> Dataset:
+) -> List[Dict[str, Any]]:
     """Load a BFCL dataset split and apply experiment filters."""
     rows = _load_rows(dataset_name, split)
     filtered = _filter_rows(
@@ -94,4 +94,4 @@ def load_bfcl_dataset(
             "BFCL dataset filter produced no rows. Check dataset.categories, "
             "dataset.task_types, and split settings."
         )
-    return Dataset.from_list(filtered)
+    return filtered
