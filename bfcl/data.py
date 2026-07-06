@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence
 
 from datasets import load_dataset
+from huggingface_hub import hf_hub_download
 
 
 def _as_list(value: Any) -> Optional[List[str]]:
@@ -43,6 +44,16 @@ def _load_local_dataset(dataset_name: str, split: str) -> List[Dict[str, Any]]:
 def _load_rows(dataset_name: str, split: str) -> List[Dict[str, Any]]:
     if Path(dataset_name).exists():
         return _load_local_dataset(dataset_name, split)
+    if "/" in dataset_name and split in {"train", "eval", "validation", "test"}:
+        try:
+            downloaded = hf_hub_download(
+                repo_id=dataset_name,
+                filename=f"{split}.jsonl",
+                repo_type="dataset",
+            )
+            return _read_jsonl(Path(downloaded))
+        except Exception:
+            pass
     dataset = load_dataset(dataset_name, split=split)
     return [dict(row) for row in dataset]
 
