@@ -171,7 +171,7 @@ def main() -> None:
 
     magrpo_section = config.get_section("magrpo")
     num_agents = int(magrpo_section.get("num_agents", 2))
-    role_mode = str(config.get("bfcl.role_mode", "split_by_order"))
+    role_mode = str(config.get("bfcl.role_mode", "self_select"))
     reward_cfg = config.get_section("bfcl_reward")
 
     magrpo_args = MAGRPOConfig(
@@ -179,7 +179,7 @@ def main() -> None:
         num_turns=int(magrpo_section.get("num_turns", 1)),
         parallel_training=str(magrpo_section.get("parallel_training", "mp")),
         agent_devices=magrpo_section.get("agent_devices", ["cuda:0", "cuda:1"]),
-        num_train_epochs=int(magrpo_section.get("num_train_epochs", 3)),
+        num_train_epochs=int(magrpo_section.get("num_train_epochs", 2)),
         agent_learning_rate=float(magrpo_section.get("agent_learning_rate", 2e-5)),
         logging_steps=int(magrpo_section.get("logging_steps", 20)),
         num_generations=int(magrpo_section.get("num_generations", 4)),

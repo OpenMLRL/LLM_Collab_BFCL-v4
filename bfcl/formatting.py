@@ -19,6 +19,15 @@ def _role_instruction(agent_idx: int, num_agents: int, role_mode: str) -> str:
             "Handle every tool-call intent you can infer from the user request. "
             "Another agent may answer independently; do not mention them."
         )
+    if role_mode == "self_select":
+        return (
+            "Another agent is working on the same request in parallel. You do not "
+            "need to complete every tool-call intent by yourself, but you should "
+            "contribute a useful non-empty subset whenever the request needs tool "
+            "calls. Choose the intents you are most confident about, avoid trying "
+            "to cover everything, and avoid doing nothing unless there is truly no "
+            "valid tool call for you to make."
+        )
     if role_mode == "odd_even":
         parity = "odd-numbered" if agent_idx % 2 == 0 else "even-numbered"
         return (
@@ -27,7 +36,7 @@ def _role_instruction(agent_idx: int, num_agents: int, role_mode: str) -> str:
             "other agent."
         )
 
-    # Default: split_by_order. For two agents this is first half / second half.
+    # split_by_order: for two agents this is first half / second half.
     if num_agents == 2:
         if agent_idx == 0:
             return (
@@ -50,7 +59,7 @@ def build_bfcl_formatter(
     agent_idx: int,
     *,
     num_agents: int = 2,
-    role_mode: str = "split_by_order",
+    role_mode: str = "self_select",
 ) -> Callable[[Dict[str, Any]], str]:
     """Build one agent-specific BFCL prompt formatter."""
 
@@ -79,11 +88,11 @@ User request:
 {user_prompt}
 
 Output requirements:
-- Output only the tool calls assigned to you.
+- Output only the tool calls assigned to you or selected by you under your assignment.
 - Use Python-style function-call syntax, one call per line.
 - Use keyword arguments from the function schemas.
 - Do not include explanations, markdown, numbering, or reasoning.
-- If no call is assigned to you, output exactly: []
+- If you make no tool call, output exactly: []
 
 Example output format:
 function_name(arg1="value", arg2=3)
@@ -96,7 +105,7 @@ another.function_name(flag=True)
 def get_bfcl_formatters(
     *,
     num_agents: int,
-    role_mode: str = "split_by_order",
+    role_mode: str = "self_select",
 ) -> List[Callable[[Dict[str, Any]], str]]:
     return [
         build_bfcl_formatter(i, num_agents=num_agents, role_mode=role_mode)

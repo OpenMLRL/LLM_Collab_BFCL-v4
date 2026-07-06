@@ -28,8 +28,12 @@ Default setup:
 - agent 0 on `cuda:0`, agent 1 on `cuda:1`
 - no LoRA or quantization
 - single-turn MAGRPO with `joint_mode: cross`
-- agent 0 handles the first half of ordered tool-call intents
-- agent 1 handles the second half
+- self-selected decentralized roles by default
+- 2 training epochs
+
+The default formatter is `bfcl.role_mode: self_select`: each agent is told
+another agent is helping, that it does not need to solve the whole request, and
+that it should contribute a useful non-empty subset.
 
 Run:
 
@@ -53,6 +57,14 @@ python3 train_magrpo.py \
   --override dataset.task_types='["travel/local_services/logistics"]'
 ```
 
+Use fixed first-half/second-half roles:
+
+```bash
+python3 train_magrpo.py \
+  --config configs/magrpo_bfcl_v4_config.yaml \
+  --override bfcl.role_mode=split_by_order
+```
+
 ## Reward
 
 The joint reward parses each agent's tool calls, aggregates them, and compares
@@ -65,4 +77,8 @@ the merged action against BFCL ground truth. It includes:
 - exact-match bonus
 - overlap penalty for duplicated calls across agents
 - lazy-agent penalty when an agent emits no calls
-- balance reward for splitting call counts close to the first-half/second-half assignment
+- balance reward for keeping each agent's contribution close to an even split
+
+For `self_select`, overlap, lazy-agent, and balance terms provide the
+exploration signal for agents to learn a useful division of work without being
+told which half to handle.

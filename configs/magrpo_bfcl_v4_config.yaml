@@ -31,7 +31,7 @@ output:
   save_final_model: false
 
 bfcl:
-  role_mode: split_by_order
+  role_mode: self_select
 
 bfcl_reward:
   parse_weight: 0.05
@@ -53,7 +53,7 @@ magrpo:
   - cuda:1
   num_agents: 2
   num_turns: 1
-  num_train_epochs: 3
+  num_train_epochs: 2
   agent_learning_rate: 2.0e-05
   logging_steps: 20
   num_generations: 4
