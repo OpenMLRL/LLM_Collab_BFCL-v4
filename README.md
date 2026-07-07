@@ -113,3 +113,24 @@ overlap, lazy-agent, extra-call, and duplicate-call terms. Duplicate-call
 penalty is computed before any semantic benefit from repeated calls can be
 hidden by aggregation. This is better for flattened multi-turn candidates, but
 it is still not a full BFCL stateful environment with actual tool execution.
+
+## Baselines
+
+Each task directory has an independent raw single-agent baseline. These scripts
+do not train; they load the same Qwen3-8B model, let one agent answer the eval
+split, and report the original model's joint `turn_1/exact_match`.
+
+Native parallel:
+
+```bash
+python3 native_parallel/baseline/single_agent/eval_single_agent.py
+```
+
+Multiturn flat:
+
+```bash
+python3 multiturn_flat/baseline/single_agent/eval_single_agent.py
+```
+
+Both write `predictions.jsonl` and `summary.json` under their configured output
+directory and log the summary to wandb when `wandb.enabled: true`.

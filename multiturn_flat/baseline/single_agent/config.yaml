@@ -1,0 +1,60 @@
+agent_model:
+  name: Qwen/Qwen3-8B
+  type: qwen
+  temperature: 0.7
+  top_p: 0.8
+  top_k: null
+  max_length: 4096
+  special_tokens: {}
+  torch_dtype: null
+
+dataset:
+  name: OpenMLRL/BFCL-V4-Parallel-Multi-Turn
+  type: bfcl
+  version: v4
+  eval_split: eval
+  categories:
+  - multi_turn_base_step
+  - multi_turn_long_context_step
+  - multi_turn_miss_func_step
+  - multi_turn_miss_param_step
+  task_types: null
+  max_eval_samples: null
+
+seed: 42
+
+baseline:
+  device: cuda:0
+  max_new_tokens: 256
+  output_dir: output_multiturn_flat_single_agent_baseline
+  logging_steps: 20
+
+bfcl_reward:
+  parse_weight: 0.05
+  sequence_function_weight: 0.15
+  sequence_argument_weight: 0.20
+  sequence_order_weight: 0.25
+  sequence_prefix_weight: 0.10
+  sequence_count_weight: 0.10
+  sequence_balance_weight: 0.15
+  sequence_exact_bonus: 0.20
+  sequence_overlap_penalty: 0.15
+  sequence_lazy_agent_penalty: 0.25
+  sequence_extra_call_penalty: 0.15
+  sequence_duplicate_penalty: 0.05
+  min_reward: -0.4
+  max_reward: 1.2
+
+wandb:
+  enabled: true
+  project: bfcl-v4
+  entity: OpenMLRL
+  name: multiturn_flat_single_agent_baseline_qwen3_8b
+  dir: output_multiturn_flat_single_agent_baseline
+  tags:
+  - baseline
+  - single_agent
+  - bfcl
+  - v4
+  - multiturn_flat
+  - qwen3-8b

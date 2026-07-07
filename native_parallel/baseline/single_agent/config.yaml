@@ -1,0 +1,58 @@
+agent_model:
+  name: Qwen/Qwen3-8B
+  type: qwen
+  temperature: 0.7
+  top_p: 0.8
+  top_k: null
+  max_length: 4096
+  special_tokens: {}
+  torch_dtype: null
+
+dataset:
+  name: OpenMLRL/BFCL-V4-Parallel-Native
+  type: bfcl
+  version: v4
+  eval_split: eval
+  categories:
+  - parallel
+  - parallel_multiple
+  - live_parallel
+  - live_parallel_multiple
+  task_types: null
+  max_eval_samples: null
+
+seed: 42
+
+baseline:
+  device: cuda:0
+  max_new_tokens: 256
+  output_dir: output_native_parallel_single_agent_baseline
+  logging_steps: 20
+
+bfcl_reward:
+  parse_weight: 0.05
+  function_weight: 0.25
+  argument_weight: 0.35
+  count_weight: 0.10
+  balance_weight: 0.15
+  exact_bonus: 0.20
+  overlap_penalty: 0.20
+  lazy_agent_penalty: 0.15
+  extra_call_penalty: 0.05
+  duplicate_penalty: 0.05
+  min_reward: -0.4
+  max_reward: 1.2
+
+wandb:
+  enabled: true
+  project: bfcl-v4
+  entity: OpenMLRL
+  name: native_parallel_single_agent_baseline_qwen3_8b
+  dir: output_native_parallel_single_agent_baseline
+  tags:
+  - baseline
+  - single_agent
+  - bfcl
+  - v4
+  - native_parallel
+  - qwen3-8b
