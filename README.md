@@ -103,11 +103,13 @@ against BFCL gold calls. It includes:
 - exact-match bonus
 - overlap penalty for duplicated calls across agents
 - lazy-agent penalty when an agent emits no calls
+- duplicate penalty for repeated canonical calls before deduplication
 - balance reward for keeping each agent's contribution close to an even split
 
 `multiturn_flat/rewards/multiturn_flat_reward.py` always uses sequence-flat
 scoring: agent outputs are aggregated in agent-index order, then scored against
 the current turn's ordered gold calls with sequence, prefix, count, balance,
-overlap, lazy-agent, extra-call, and duplicate-call terms. This is better for
-flattened multi-turn candidates, but it is still not a full BFCL stateful
-environment with actual tool execution.
+overlap, lazy-agent, extra-call, and duplicate-call terms. Duplicate-call
+penalty is computed before any semantic benefit from repeated calls can be
+hidden by aggregation. This is better for flattened multi-turn candidates, but
+it is still not a full BFCL stateful environment with actual tool execution.

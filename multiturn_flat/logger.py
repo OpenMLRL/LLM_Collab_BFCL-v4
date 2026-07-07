@@ -82,6 +82,7 @@ def aggregate_multiturn_flat_metrics(
         "matched_calls",
         "exact_calls",
         "pred_call_count",
+        "raw_call_count",
         "gold_call_count",
         "count_score",
         "balance_score",
@@ -92,6 +93,7 @@ def aggregate_multiturn_flat_metrics(
         "extra_call_rate",
         "sequence_score",
         "prefix_score",
+        "duplicate_count",
         "duplicate_rate",
     ]
     for metric_name in metric_names:

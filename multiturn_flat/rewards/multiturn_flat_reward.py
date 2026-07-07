@@ -155,12 +155,11 @@ def _ordered_exact_match(
     return all(_call_similarity(predicted, gold)[1] for predicted, gold in zip(predicted_calls, gold_calls))
 
 
-def _duplicate_rate(calls: Sequence[ToolCall], gold_count: int) -> float:
+def _duplicate_count(calls: Sequence[ToolCall]) -> int:
     if not calls:
-        return 0.0
+        return 0
     counts = Counter(canonical_call_key(call) for call in calls)
-    duplicate_count = sum(max(0, count - 1) for count in counts.values())
-    return min(1.0, duplicate_count / max(1, gold_count))
+    return sum(max(0, count - 1) for count in counts.values())
 
 
 def _clamp(value: float, lower: float, upper: float) -> float:
@@ -257,7 +256,8 @@ def score_multiturn_flat_response(
     lazy_rate = lazy_agents / max(1, len(agent_counts))
     extra_calls = max(0, pred_count - gold_count)
     extra_rate = min(1.0, extra_calls / max(1, gold_count))
-    duplicate_rate = _duplicate_rate(combined_ordered, gold_count)
+    duplicate_count = _duplicate_count(combined_ordered)
+    duplicate_rate = min(1.0, duplicate_count / max(1, gold_count))
     exact_match = _ordered_exact_match(combined_ordered, gold_calls)
 
     reward = (
@@ -285,6 +285,7 @@ def score_multiturn_flat_response(
         "matched_calls": float(matched_count),
         "exact_calls": float(exact_count),
         "pred_call_count": float(pred_count),
+        "raw_call_count": float(pred_count),
         "gold_call_count": float(gold_count),
         "count_score": float(count_score),
         "balance_score": float(balance_score),
@@ -295,6 +296,7 @@ def score_multiturn_flat_response(
         "extra_call_rate": float(extra_rate),
         "sequence_score": float(sequence_score),
         "prefix_score": float(prefix_score),
+        "duplicate_count": float(duplicate_count),
         "duplicate_rate": float(duplicate_rate),
         "agent_call_counts": agent_counts,
         "combined_calls": [

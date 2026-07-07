@@ -81,6 +81,7 @@ def aggregate_native_parallel_metrics(
         "matched_calls",
         "exact_calls",
         "pred_call_count",
+        "raw_call_count",
         "gold_call_count",
         "count_score",
         "balance_score",
@@ -89,6 +90,8 @@ def aggregate_native_parallel_metrics(
         "lazy_agents",
         "lazy_rate",
         "extra_call_rate",
+        "duplicate_count",
+        "duplicate_rate",
     ]
     for metric_name in metric_names:
         key = f"turn_1/{metric_name}"
