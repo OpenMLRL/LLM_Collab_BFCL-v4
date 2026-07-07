@@ -28,6 +28,7 @@ Default setup:
 - agent 0 on `cuda:0`, agent 1 on `cuda:1`
 - no LoRA or quantization
 - single-turn MAGRPO with `joint_mode: cross`
+- BFCL v4 non-live and live `parallel` / `parallel_multiple` categories
 - self-selected decentralized roles by default
 - 2 training epochs
 
@@ -47,6 +48,14 @@ Filter to one BFCL category:
 python3 train_magrpo.py \
   --config configs/magrpo_bfcl_v4_config.yaml \
   --override dataset.categories='["parallel"]'
+```
+
+Include experimental flattened multi-turn candidates:
+
+```bash
+python3 train_magrpo.py \
+  --config configs/magrpo_bfcl_v4_config.yaml \
+  --override dataset.categories='["parallel","parallel_multiple","live_parallel","live_parallel_multiple","multi_turn_base_step"]'
 ```
 
 Filter by heuristic task type:
