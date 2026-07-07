@@ -115,11 +115,6 @@ def _cross_agent_overlap(agent_calls: Sequence[Sequence[ToolCall]]) -> int:
     return sum(max(0, count - 1) for count in key_counts.values())
 
 
-def _duplicate_count(calls: Sequence[ToolCall]) -> int:
-    counts = Counter(canonical_call_key(call) for call in calls)
-    return sum(max(0, count - 1) for count in counts.values())
-
-
 def _clamp(value: float, lower: float, upper: float) -> float:
     return max(lower, min(upper, value))
 
@@ -135,7 +130,6 @@ class NativeParallelRewardConfig:
     overlap_penalty: float = 0.20
     lazy_agent_penalty: float = 0.15
     extra_call_penalty: float = 0.05
-    duplicate_penalty: float = 0.05
     min_reward: float = -0.4
     max_reward: float = 1.2
 
@@ -210,8 +204,6 @@ def score_native_parallel_response(
     lazy_rate = lazy_agents / max(1, len(agent_counts))
     extra_calls = max(0, pred_count - gold_count)
     extra_rate = min(1.0, extra_calls / max(1, gold_count))
-    duplicate_count = _duplicate_count(raw_combined_calls)
-    duplicate_rate = min(1.0, duplicate_count / max(1, gold_count))
     raw_call_count = len(raw_combined_calls)
 
     exact_match = exact_count == gold_count and pred_count == gold_count and gold_count > 0
@@ -225,7 +217,6 @@ def score_native_parallel_response(
         - cfg.overlap_penalty * overlap_rate
         - cfg.lazy_agent_penalty * lazy_rate
         - cfg.extra_call_penalty * extra_rate
-        - cfg.duplicate_penalty * duplicate_rate
     )
     reward = _clamp(reward, cfg.min_reward, cfg.max_reward)
 
@@ -247,8 +238,6 @@ def score_native_parallel_response(
         "lazy_agents": float(lazy_agents),
         "lazy_rate": float(lazy_rate),
         "extra_call_rate": float(extra_rate),
-        "duplicate_count": float(duplicate_count),
-        "duplicate_rate": float(duplicate_rate),
         "agent_call_counts": agent_counts,
         "combined_calls": [
             {"name": call.name, "arguments": call.arguments} for call in combined_calls

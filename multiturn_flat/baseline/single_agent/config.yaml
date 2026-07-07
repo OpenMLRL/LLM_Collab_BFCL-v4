@@ -41,7 +41,6 @@ bfcl_reward:
   sequence_overlap_penalty: 0.15
   sequence_lazy_agent_penalty: 0.25
   sequence_extra_call_penalty: 0.15
-  sequence_duplicate_penalty: 0.05
   min_reward: -0.4
   max_reward: 1.2
 

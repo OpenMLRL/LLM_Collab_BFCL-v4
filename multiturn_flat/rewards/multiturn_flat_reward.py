@@ -10,6 +10,7 @@ from multiturn_flat.parsing import (
     ToolCall,
     canonical_call_key,
     canonical_value,
+    dedupe_calls,
     gold_to_tool_calls,
     parse_tool_calls,
 )
@@ -155,13 +156,6 @@ def _ordered_exact_match(
     return all(_call_similarity(predicted, gold)[1] for predicted, gold in zip(predicted_calls, gold_calls))
 
 
-def _duplicate_count(calls: Sequence[ToolCall]) -> int:
-    if not calls:
-        return 0
-    counts = Counter(canonical_call_key(call) for call in calls)
-    return sum(max(0, count - 1) for count in counts.values())
-
-
 def _clamp(value: float, lower: float, upper: float) -> float:
     return max(lower, min(upper, value))
 
@@ -179,7 +173,6 @@ class MultiturnFlatRewardConfig:
     sequence_overlap_penalty: float = 0.15
     sequence_lazy_agent_penalty: float = 0.25
     sequence_extra_call_penalty: float = 0.15
-    sequence_duplicate_penalty: float = 0.05
     min_reward: float = -0.4
     max_reward: float = 1.2
 
@@ -231,11 +224,13 @@ def score_multiturn_flat_response(
     function_schemas = batch_item.get("function", []) or []
     gold_calls = gold_to_tool_calls(batch_item.get("ground_truth", []) or [])
 
-    per_agent_calls = [
+    raw_per_agent_calls = [
         parse_tool_calls(text or "", function_schemas=function_schemas)
         for text in agent_completions
     ]
+    per_agent_calls = [dedupe_calls(calls) for calls in raw_per_agent_calls]
     combined_ordered = [call for calls in per_agent_calls for call in calls]
+    raw_call_count = sum(len(calls) for calls in raw_per_agent_calls)
 
     parse_score = 1.0 if combined_ordered else 0.0
     function_f1 = _function_f1(combined_ordered, gold_calls)
@@ -256,8 +251,6 @@ def score_multiturn_flat_response(
     lazy_rate = lazy_agents / max(1, len(agent_counts))
     extra_calls = max(0, pred_count - gold_count)
     extra_rate = min(1.0, extra_calls / max(1, gold_count))
-    duplicate_count = _duplicate_count(combined_ordered)
-    duplicate_rate = min(1.0, duplicate_count / max(1, gold_count))
     exact_match = _ordered_exact_match(combined_ordered, gold_calls)
 
     reward = (
@@ -272,7 +265,6 @@ def score_multiturn_flat_response(
         - cfg.sequence_overlap_penalty * overlap_rate
         - cfg.sequence_lazy_agent_penalty * lazy_rate
         - cfg.sequence_extra_call_penalty * extra_rate
-        - cfg.sequence_duplicate_penalty * duplicate_rate
     )
     reward = _clamp(reward, cfg.min_reward, cfg.max_reward)
 
@@ -285,7 +277,7 @@ def score_multiturn_flat_response(
         "matched_calls": float(matched_count),
         "exact_calls": float(exact_count),
         "pred_call_count": float(pred_count),
-        "raw_call_count": float(pred_count),
+        "raw_call_count": float(raw_call_count),
         "gold_call_count": float(gold_count),
         "count_score": float(count_score),
         "balance_score": float(balance_score),
@@ -296,8 +288,6 @@ def score_multiturn_flat_response(
         "extra_call_rate": float(extra_rate),
         "sequence_score": float(sequence_score),
         "prefix_score": float(prefix_score),
-        "duplicate_count": float(duplicate_count),
-        "duplicate_rate": float(duplicate_rate),
         "agent_call_counts": agent_counts,
         "combined_calls": [
             {"name": call.name, "arguments": call.arguments}

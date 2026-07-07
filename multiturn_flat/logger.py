@@ -93,8 +93,6 @@ def aggregate_multiturn_flat_metrics(
         "extra_call_rate",
         "sequence_score",
         "prefix_score",
-        "duplicate_count",
-        "duplicate_rate",
     ]
     for metric_name in metric_names:
         key = f"turn_1/{metric_name}"

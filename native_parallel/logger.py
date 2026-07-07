@@ -90,8 +90,6 @@ def aggregate_native_parallel_metrics(
         "lazy_agents",
         "lazy_rate",
         "extra_call_rate",
-        "duplicate_count",
-        "duplicate_rate",
     ]
     for metric_name in metric_names:
         key = f"turn_1/{metric_name}"

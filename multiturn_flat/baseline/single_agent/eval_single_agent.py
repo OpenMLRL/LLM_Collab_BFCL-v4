@@ -178,7 +178,6 @@ def _summarize(records: List[Dict[str, Any]]) -> Dict[str, float]:
         "extra_call_rate",
         "sequence_score",
         "prefix_score",
-        "duplicate_rate",
     ]
     summary = {"num_samples": float(len(records))}
     for key in scalar_keys:
