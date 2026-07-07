@@ -36,6 +36,7 @@ bfcl:
   role_mode: self_select
 
 bfcl_reward:
+  mode: auto
   parse_weight: 0.05
   function_weight: 0.25
   argument_weight: 0.35
@@ -45,6 +46,17 @@ bfcl_reward:
   overlap_penalty: 0.20
   lazy_agent_penalty: 0.15
   extra_call_penalty: 0.05
+  sequence_function_weight: 0.15
+  sequence_argument_weight: 0.20
+  sequence_order_weight: 0.25
+  sequence_prefix_weight: 0.10
+  sequence_count_weight: 0.10
+  sequence_balance_weight: 0.15
+  sequence_exact_bonus: 0.20
+  sequence_overlap_penalty: 0.15
+  sequence_lazy_agent_penalty: 0.25
+  sequence_extra_call_penalty: 0.15
+  sequence_duplicate_penalty: 0.05
   min_reward: -0.4
   max_reward: 1.2
 

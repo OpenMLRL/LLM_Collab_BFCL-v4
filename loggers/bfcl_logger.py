@@ -94,6 +94,10 @@ def aggregate_bfcl_metrics_for_logging(
         "lazy_agents",
         "lazy_rate",
         "extra_call_rate",
+        "sequence_score",
+        "prefix_score",
+        "duplicate_rate",
+        "reward_mode",
     ]
     for turn in range(1, num_turns + 1):
         for metric_name in metric_names:

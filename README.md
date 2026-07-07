@@ -58,6 +58,14 @@ python3 train_magrpo.py \
   --override dataset.categories='["parallel","parallel_multiple","live_parallel","live_parallel_multiple","multi_turn_base_step"]'
 ```
 
+Run only the experimental flattened multi-turn candidates:
+
+```bash
+python3 train_magrpo.py \
+  --config configs/magrpo_bfcl_v4_config.yaml \
+  --override dataset.categories='["multi_turn_base_step","multi_turn_long_context_step","multi_turn_miss_func_step","multi_turn_miss_param_step"]'
+```
+
 Filter by heuristic task type:
 
 ```bash
@@ -88,6 +96,10 @@ the merged action against BFCL ground truth. It includes:
 - lazy-agent penalty when an agent emits no calls
 - balance reward for keeping each agent's contribution close to an even split
 
-For `self_select`, overlap, lazy-agent, and balance terms provide the
-exploration signal for agents to learn a useful division of work without being
-told which half to handle.
+`bfcl_reward.mode: auto` uses the original flat aggregate reward for native
+single-turn parallel rows. For flattened multi-turn rows, it switches to an
+order-sensitive sequence reward: agent outputs are aggregated in agent-index
+order, then scored against the current turn's ordered gold calls with sequence,
+prefix, count, balance, overlap, lazy-agent, extra-call, and duplicate-call
+terms. This is a better fit for the experimental multi-turn candidates, but it
+is still not a full BFCL stateful environment with actual tool execution.
