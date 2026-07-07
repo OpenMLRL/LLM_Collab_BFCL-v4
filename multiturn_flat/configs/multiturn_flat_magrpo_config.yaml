@@ -11,16 +11,16 @@ agent_model:
 agents: null
 
 dataset:
-  name: OpenMLRL/BFCL-V4-Parallel-Native
+  name: OpenMLRL/BFCL-V4-Parallel-Multi-Turn
   type: bfcl
   version: v4
   train_split: train
   eval_split: eval
   categories:
-  - parallel
-  - parallel_multiple
-  - live_parallel
-  - live_parallel_multiple
+  - multi_turn_base_step
+  - multi_turn_long_context_step
+  - multi_turn_miss_func_step
+  - multi_turn_miss_param_step
   task_types: null
   max_train_samples: null
   max_eval_samples: null
@@ -28,25 +28,28 @@ dataset:
 seed: 42
 
 output:
-  base_dir: output_magrpo_bfcl_v4
+  base_dir: output_multiturn_flat_magrpo
   verbose: false
   save_final_model: false
 
 bfcl:
-  task: native_parallel
+  task: multiturn_flat
   role_mode: self_select
 
 bfcl_reward:
-  mode: flat
+  mode: sequence_flat
   parse_weight: 0.05
-  function_weight: 0.25
-  argument_weight: 0.35
-  count_weight: 0.10
-  balance_weight: 0.15
-  exact_bonus: 0.20
-  overlap_penalty: 0.20
-  lazy_agent_penalty: 0.15
-  extra_call_penalty: 0.05
+  sequence_function_weight: 0.15
+  sequence_argument_weight: 0.20
+  sequence_order_weight: 0.25
+  sequence_prefix_weight: 0.10
+  sequence_count_weight: 0.10
+  sequence_balance_weight: 0.15
+  sequence_exact_bonus: 0.20
+  sequence_overlap_penalty: 0.15
+  sequence_lazy_agent_penalty: 0.25
+  sequence_extra_call_penalty: 0.15
+  sequence_duplicate_penalty: 0.05
   min_reward: -0.4
   max_reward: 1.2
 
@@ -83,15 +86,14 @@ reward_processor:
 
 wandb:
   enabled: true
-  project: comlrl
+  project: bfcl-v4
   entity: OpenMLRL
-  name: magrpo_bfcl_v4_parallel_qwen3_8b
-  dir: output_magrpo_bfcl_v4
+  name: multiturn_flat_magrpo_qwen3_8b
+  dir: output_multiturn_flat_magrpo
   tags:
   - magrpo
   - bfcl
   - v4
-  - parallel
-  - parallel_multiple
+  - multiturn_flat
   - qwen3-8b
   - decentralized

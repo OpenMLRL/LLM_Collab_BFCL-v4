@@ -13,6 +13,24 @@ def _function_docs(example: Dict[str, Any]) -> str:
     return "\n".join(chunks)
 
 
+def _metadata_lines(example: Dict[str, Any]) -> str:
+    lines = [
+        f"BFCL category: {example.get('official_category', 'unknown')}",
+        f"Heuristic task type: {example.get('task_type', 'unknown')}",
+    ]
+    turn_index = example.get("turn_index")
+    if turn_index is not None:
+        try:
+            turn_number = int(turn_index) + 1
+            lines.append(
+                f"Original multi-turn trajectory turn: {turn_number} "
+                f"(zero-based turn_index={int(turn_index)})"
+            )
+        except (TypeError, ValueError):
+            lines.append(f"Original multi-turn trajectory turn_index: {turn_index}")
+    return "\n".join(lines)
+
+
 def _role_instruction(agent_idx: int, num_agents: int, role_mode: str) -> str:
     if role_mode == "same_prompt":
         return (
@@ -66,8 +84,7 @@ def build_bfcl_formatter(
     def formatter(example: Dict[str, Any], external_prompts: Any = None) -> str:
         del external_prompts
         user_prompt = example.get("user_prompt") or example.get("prompt") or ""
-        official_category = example.get("official_category", "unknown")
-        task_type = example.get("task_type", "unknown")
+        metadata_lines = _metadata_lines(example)
         role_instruction = _role_instruction(agent_idx, num_agents, role_mode)
         return f"""You are a decentralized function-calling agent.
 
@@ -78,8 +95,7 @@ merge the agents' tool calls.
 Your assignment:
 {role_instruction}
 
-BFCL category: {official_category}
-Heuristic task type: {task_type}
+{metadata_lines}
 
 Available function schemas:
 {_function_docs(example)}

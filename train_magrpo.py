@@ -75,6 +75,25 @@ def _build_reward_processor(config: Config):
     return lambda value: shift_processor(reward_processor(value))
 
 
+def _build_reward(config: Config):
+    reward_cfg = config.get_section("bfcl_reward")
+    task_name = str(
+        config.get("bfcl.task", reward_cfg.get("task", reward_cfg.get("name", "auto")))
+    ).strip().lower()
+
+    if task_name in {"native", "native_parallel", "parallel"}:
+        from native_parallel.rewards import make_reward
+
+        return make_reward(reward_cfg)
+
+    if task_name in {"multiturn", "multiturn_flat", "multi_turn", "multi_turn_flat"}:
+        from multiturn_flat.rewards import make_reward
+
+        return make_reward(reward_cfg)
+
+    return make_bfcl_reward(reward_cfg)
+
+
 def _wandb_config(config: Config, output_dir: str, magrpo_config: Dict[str, Any]):
     wandb_section = config.get_section("wandb")
     if not _bool(wandb_section.get("enabled", True), default=True):
@@ -209,7 +228,7 @@ def main() -> None:
     )
 
     formatters = get_bfcl_formatters(num_agents=num_agents, role_mode=role_mode)
-    reward_func = make_bfcl_reward(reward_cfg)
+    reward_func = _build_reward(config)
     eval_rows = [dict(row) for row in eval_dataset]
     eval_logger = build_bfcl_eval_logger(eval_rows, reward_config=reward_cfg)
     reward_processor = _build_reward_processor(config)
