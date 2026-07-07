@@ -2,9 +2,10 @@
 
 This repo provides BFCL function-calling environments for CoMLRL. The current
 layout follows the task-separated style used by the Minecraft collaboration
-repos: each BFCL task has its own config, reward factory, and training
-entrypoint while sharing the common BFCL loader, formatter, parser, and CoMLRL
-trainer glue.
+repos: each BFCL task directory is a self-contained path with its own config,
+dataset loader, formatter, parser, logger, reward, and MAGRPO training
+entrypoint. The two task directories do not import each other and there is no
+root shared BFCL runtime layer.
 
 ## Dataset
 
@@ -39,6 +40,8 @@ Key fields:
 - dataset: `OpenMLRL/BFCL-V4-Parallel-Native`
 - config: `native_parallel/configs/native_parallel_magrpo_config.yaml`
 - entrypoint: `native_parallel/train/train_magrpo.py`
+- local modules: `data.py`, `formatting.py`, `parsing.py`, `logger.py`,
+  `rewards/native_parallel_reward.py`
 
 Run:
 
@@ -61,6 +64,8 @@ field is present.
 - dataset: `OpenMLRL/BFCL-V4-Parallel-Multi-Turn`
 - config: `multiturn_flat/configs/multiturn_flat_magrpo_config.yaml`
 - entrypoint: `multiturn_flat/train/train_magrpo.py`
+- local modules: `data.py`, `formatting.py`, `parsing.py`, `logger.py`,
+  `rewards/multiturn_flat_reward.py`
 
 ```bash
 python3 multiturn_flat/train/train_magrpo.py
@@ -68,26 +73,20 @@ python3 multiturn_flat/train/train_magrpo.py
 
 Both tasks use two Qwen3-8B agents, `self_select` decentralized prompting, no
 LoRA or quantization, `joint_mode: cross`, and 2 training epochs by default.
-
-The shared root entrypoint remains available for manual configs:
-
-```bash
-python3 train_magrpo.py --config configs/magrpo_bfcl_v4_config.yaml
-```
+There is intentionally no root MAGRPO entrypoint or root BFCL helper package;
+launch each task through its own `train/` path.
 
 Filter by heuristic task type:
 
 ```bash
-python3 train_magrpo.py \
-  --config configs/magrpo_bfcl_v4_config.yaml \
+python3 native_parallel/train/train_magrpo.py \
   --override dataset.task_types='["travel/local_services/logistics"]'
 ```
 
 Use fixed first-half/second-half roles:
 
 ```bash
-python3 train_magrpo.py \
-  --config configs/magrpo_bfcl_v4_config.yaml \
+python3 native_parallel/train/train_magrpo.py \
   --override bfcl.role_mode=split_by_order
 ```
 

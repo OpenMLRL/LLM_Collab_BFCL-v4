@@ -33,11 +33,9 @@ output:
   save_final_model: false
 
 bfcl:
-  task: native_parallel
   role_mode: self_select
 
 bfcl_reward:
-  mode: flat
   parse_weight: 0.05
   function_weight: 0.25
   argument_weight: 0.35

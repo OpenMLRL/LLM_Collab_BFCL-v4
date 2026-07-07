@@ -33,11 +33,9 @@ output:
   save_final_model: false
 
 bfcl:
-  task: multiturn_flat
   role_mode: self_select
 
 bfcl_reward:
-  mode: sequence_flat
   parse_weight: 0.05
   sequence_function_weight: 0.15
   sequence_argument_weight: 0.20

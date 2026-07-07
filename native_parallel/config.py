@@ -1,8 +1,8 @@
-"""Configuration helpers for BFCL collaboration experiments."""
+"""Configuration helpers for native BFCL parallel experiments."""
+
+from __future__ import annotations
 
 import argparse
-import os
-import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -10,16 +10,8 @@ from typing import Any, Dict, Optional
 import yaml
 
 
-REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
-COMLRL_ROOT = os.path.join(os.path.dirname(REPO_ROOT), "CoMLRL")
-if COMLRL_ROOT not in sys.path:
-    sys.path.insert(0, COMLRL_ROOT)
-
-
 @dataclass(frozen=True)
 class ModelConfig:
-    """Configuration for model loading and generation."""
-
     name: str
     type: str = "qwen"
     temperature: Optional[float] = None
@@ -84,8 +76,6 @@ class ModelConfig:
 
 
 class Config:
-    """Simple YAML configuration manager."""
-
     def __init__(self, config_path: str):
         self.path = Path(config_path)
         if not self.path.exists():
@@ -94,9 +84,8 @@ class Config:
             self.data = yaml.safe_load(handle)
 
     def get(self, key: str, default: Any = None) -> Any:
-        keys = key.split(".")
         value = self.data
-        for part in keys:
+        for part in key.split("."):
             if isinstance(value, dict) and part in value:
                 value = value[part]
             else:
@@ -163,13 +152,10 @@ def parse_overrides(overrides: list) -> Dict[str, Any]:
             raise ValueError(
                 f"Invalid override format: {override}. Use key=value format."
             )
-
         key, value = override.split("=", 1)
         keys = key.split(".")
         current = result
         for part in keys[:-1]:
-            if part not in current:
-                current[part] = {}
-            current = current[part]
+            current = current.setdefault(part, {})
         current[keys[-1]] = _parse_override_value(value)
     return result

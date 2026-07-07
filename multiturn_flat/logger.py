@@ -1,4 +1,4 @@
-"""Evaluation logging adapters for CoMLRL's MAGRPO trainer."""
+"""Evaluation logging for flattened BFCL multi-turn MAGRPO runs."""
 
 from __future__ import annotations
 
@@ -6,14 +6,17 @@ from typing import Any, Callable, Dict, Iterable, List
 
 import numpy as np
 
-from rewards.bfcl_rewards import BFCLRewardConfig, score_bfcl_joint_response
+from multiturn_flat.rewards.multiturn_flat_reward import (
+    MultiturnFlatRewardConfig,
+    score_multiturn_flat_response,
+)
 
 
 def _prompt_key(prompt: str) -> str:
     return " ".join((prompt or "").split()).strip()
 
 
-def build_bfcl_eval_logger(
+def build_multiturn_flat_eval_logger(
     eval_rows: Iterable[Dict[str, Any]],
     *,
     reward_config: Dict[str, Any] | None = None,
@@ -22,7 +25,7 @@ def build_bfcl_eval_logger(
         _prompt_key(row.get("prompt") or row.get("user_prompt") or ""): row
         for row in eval_rows
     }
-    cfg = BFCLRewardConfig.from_dict(reward_config or {})
+    cfg = MultiturnFlatRewardConfig.from_dict(reward_config or {})
 
     def logger(
         agent_completions_turns: List[List[List[str]]],
@@ -33,46 +36,39 @@ def build_bfcl_eval_logger(
         del test_cases, entry_points
         if not agent_completions_turns or prompts is None:
             return []
-        num_samples = len(prompts)
         metrics = []
-        for sample_idx in range(num_samples):
-            row = row_by_prompt.get(_prompt_key(prompts[sample_idx]))
+        for sample_idx, prompt in enumerate(prompts):
+            row = row_by_prompt.get(_prompt_key(prompt))
             if row is None:
                 continue
-            num_turns = max(
-                len(agent_completions_turns[agent_idx][sample_idx])
-                for agent_idx in range(len(agent_completions_turns))
+            turn_completions = []
+            for agent_idx in range(len(agent_completions_turns)):
+                per_sample = agent_completions_turns[agent_idx][sample_idx]
+                turn_completions.append(per_sample[0] if per_sample else "")
+            _, detail = score_multiturn_flat_response(
+                turn_completions,
+                batch_item=row,
+                config=cfg,
             )
             sample_metrics: Dict[str, Any] = {
                 "sample_id": row.get("id", sample_idx),
                 "official_category": row.get("official_category", ""),
                 "task_type": row.get("task_type", ""),
+                "turn_index": row.get("turn_index", ""),
             }
-            for turn_idx in range(num_turns):
-                turn_completions = []
-                for agent_idx in range(len(agent_completions_turns)):
-                    per_sample = agent_completions_turns[agent_idx][sample_idx]
-                    turn_completions.append(
-                        per_sample[turn_idx] if turn_idx < len(per_sample) else ""
-                    )
-                _, detail = score_bfcl_joint_response(
-                    turn_completions,
-                    batch_item=row,
-                    config=cfg,
-                )
-                prefix = f"turn_{turn_idx + 1}"
-                for key, value in detail.items():
-                    if isinstance(value, (int, float)):
-                        sample_metrics[f"{prefix}/{key}"] = float(value)
+            for key, value in detail.items():
+                if isinstance(value, (int, float)):
+                    sample_metrics[f"turn_1/{key}"] = float(value)
             metrics.append(sample_metrics)
         return metrics
 
     return logger
 
 
-def aggregate_bfcl_metrics_for_logging(
+def aggregate_multiturn_flat_metrics(
     metrics_list: List[Dict[str, Any]], num_turns: int = 1
 ) -> Dict[str, float]:
+    del num_turns
     if not metrics_list:
         return {}
 
@@ -97,20 +93,17 @@ def aggregate_bfcl_metrics_for_logging(
         "sequence_score",
         "prefix_score",
         "duplicate_rate",
-        "reward_mode",
     ]
-    for turn in range(1, num_turns + 1):
-        for metric_name in metric_names:
-            key = f"turn_{turn}/{metric_name}"
-            values = [
-                float(sample[key])
-                for sample in metrics_list
-                if key in sample and isinstance(sample[key], (int, float))
-            ]
-            if values:
-                aggregated[f"turn_{turn}/{metric_name}"] = float(np.mean(values))
+    for metric_name in metric_names:
+        key = f"turn_1/{metric_name}"
+        values = [
+            float(sample[key])
+            for sample in metrics_list
+            if key in sample and isinstance(sample[key], (int, float))
+        ]
+        if values:
+            aggregated[key] = float(np.mean(values))
 
-    # Official categories and heuristic task types are useful eval slices.
     for group_key in ("official_category", "task_type"):
         group_values = sorted(
             {str(sample.get(group_key, "")) for sample in metrics_list if sample.get(group_key)}
