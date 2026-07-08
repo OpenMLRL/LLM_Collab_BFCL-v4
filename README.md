@@ -3,9 +3,9 @@
 This repo provides BFCL function-calling environments for CoMLRL. The current
 layout follows the task-separated style used by the Minecraft collaboration
 repos: each BFCL task directory is a self-contained path with its own config,
-dataset loader, formatter, parser, logger, reward, and MAGRPO training
-entrypoint. The two task directories do not import each other and there is no
-root shared BFCL runtime layer.
+dataset loader, formatter, parser, logger, reward, and training entrypoints.
+The two task directories do not import each other and there is no root shared
+BFCL runtime layer.
 
 ## Dataset
 
@@ -39,8 +39,14 @@ Key fields:
   `live_parallel`, `live_parallel_multiple`
 - reward: flat aggregate joint reward
 - dataset: `OpenMLRL/BFCL-V4-Parallel-Native`
-- config: `native_parallel/configs/native_parallel_magrpo_config.yaml`
-- entrypoint: `native_parallel/train/train_magrpo.py`
+- MAGRPO config: `native_parallel/configs/native_parallel_magrpo_config.yaml`
+- MAGRPO entrypoint: `native_parallel/train/train_magrpo.py`
+- additional native entrypoints:
+  - `native_parallel/train/train_iac.py`
+  - `native_parallel/train/train_maac.py`
+  - `native_parallel/train/train_marlhf.py`
+  - `native_parallel/train/train_madpo_iter.py`
+  - `native_parallel/train/train_marlhf_iter.py`
 - local modules: `data.py`, `formatting.py`, `parsing.py`, `logger.py`,
   `rewards/native_parallel_reward.py`
 
@@ -73,8 +79,11 @@ python3 multiturn_flat/train/train_magrpo.py
 ```
 
 Both tasks use two Qwen3-8B agents, `self_select` decentralized prompting, no
-LoRA or quantization, `joint_mode: cross`, and 2 training epochs by default.
-There is intentionally no root MAGRPO entrypoint or root BFCL helper package;
+LoRA or quantization. MAGRPO uses `joint_mode: cross` and 2 training epochs by
+default. Native MARLHF, MADPO-Iter, and MARLHF-Iter use `joint_mode: aligned`,
+because the CoMLRL preference pair generation path only supports aligned
+candidates.
+There is intentionally no root training entrypoint or root BFCL helper package;
 launch each task through its own `train/` path.
 
 Filter by heuristic task type:
