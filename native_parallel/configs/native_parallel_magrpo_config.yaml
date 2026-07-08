@@ -43,7 +43,6 @@ bfcl_reward:
   overlap_penalty: 0.20
   lazy_agent_penalty: 0.15
   extra_call_penalty: 0.05
-  self_duplicate_mode: dedupe
   self_duplicate_penalty: 0.10
   min_reward: -0.4
   max_reward: 1.2

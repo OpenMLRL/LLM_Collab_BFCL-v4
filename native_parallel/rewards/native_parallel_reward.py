@@ -141,18 +141,9 @@ class NativeParallelRewardConfig:
     overlap_penalty: float = 0.20
     lazy_agent_penalty: float = 0.15
     extra_call_penalty: float = 0.05
-    self_duplicate_mode: str = "dedupe"
     self_duplicate_penalty: float = 0.10
     min_reward: float = -0.4
     max_reward: float = 1.2
-
-    def __post_init__(self) -> None:
-        mode = str(self.self_duplicate_mode or "dedupe").strip().lower()
-        if mode not in {"dedupe", "penalize"}:
-            raise ValueError(
-                "bfcl_reward.self_duplicate_mode must be one of: dedupe, penalize."
-            )
-        self.self_duplicate_mode = mode
 
     @classmethod
     def from_dict(cls, raw: Dict[str, Any]) -> "NativeParallelRewardConfig":
@@ -225,11 +216,7 @@ def score_native_parallel_response(
         raw_per_agent_calls, per_agent_calls
     )
     self_duplicate_rate = min(1.0, self_duplicate_count / max(1, gold_count))
-    self_duplicate_penalty = (
-        cfg.self_duplicate_penalty * self_duplicate_rate
-        if cfg.self_duplicate_mode == "penalize"
-        else 0.0
-    )
+    self_duplicate_penalty = cfg.self_duplicate_penalty * self_duplicate_rate
     lazy_agents = sum(1 for count in agent_counts if count == 0)
     lazy_rate = lazy_agents / max(1, len(agent_counts))
     extra_calls = max(0, pred_count - gold_count)
@@ -274,7 +261,6 @@ def score_native_parallel_response(
         "extra_call_rate": float(extra_rate),
         "agent_call_counts": agent_counts,
         "per_agent_duplicate_counts": per_agent_duplicate_counts,
-        "self_duplicate_mode": cfg.self_duplicate_mode,
         "combined_calls": [
             {"name": call.name, "arguments": call.arguments} for call in combined_calls
         ],
