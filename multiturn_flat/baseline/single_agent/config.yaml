@@ -5,7 +5,7 @@ agent_model:
   top_p: 0.8
   top_k: null
   special_tokens: {}
-  torch_dtype: null
+  torch_dtype: bfloat16
   attn_implementation: eager
 
 dataset:
