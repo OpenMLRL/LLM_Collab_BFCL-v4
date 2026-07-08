@@ -242,6 +242,8 @@ def main() -> None:
     dtype = _torch_dtype(model_config.torch_dtype)
     if dtype is not None:
         model_kwargs["torch_dtype"] = dtype
+    if model_config.attn_implementation is not None:
+        model_kwargs["attn_implementation"] = model_config.attn_implementation
     model = AutoModelForCausalLM.from_pretrained(model_config.name, **model_kwargs).to(device)
     model.eval()
 

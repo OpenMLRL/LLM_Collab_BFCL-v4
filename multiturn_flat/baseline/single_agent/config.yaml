@@ -7,6 +7,7 @@ agent_model:
   max_length: 4096
   special_tokens: {}
   torch_dtype: null
+  attn_implementation: eager
 
 dataset:
   name: OpenMLRL/BFCL-V4-Parallel-Multi-Turn
