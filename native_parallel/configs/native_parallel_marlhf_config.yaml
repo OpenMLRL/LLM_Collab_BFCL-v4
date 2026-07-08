@@ -54,12 +54,12 @@ marlhf:
   - cuda:1
   num_agents: 2
   num_turns: 1
-  num_train_epochs: 2
+  num_train_epochs: 4
   agent_learning_rate: 2.0e-05
   logging_steps: 20
   num_generations: 4
-  preference_num_candidates: 8
-  preference_pairs_per_sample: 2
+  preference_num_candidates: 40
+  preference_pairs_per_sample: 8
   pair_selection: reward_gap
   dpo_beta: 0.1
   use_environment_step: true
@@ -80,7 +80,7 @@ marlhf:
   reference_devices: null
   rl_algorithm: magrpo
   reward_model_name: Qwen/Qwen3-8B
-  reward_model_device: cuda:0
+  reward_model_device: cuda:2
   reward_learning_rate: 1.0e-05
   reward_num_train_epochs: 1
   reward_train_batch_size: 2

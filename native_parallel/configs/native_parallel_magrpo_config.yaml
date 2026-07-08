@@ -54,13 +54,13 @@ magrpo:
   - cuda:1
   num_agents: 2
   num_turns: 1
-  num_train_epochs: 2
+  num_train_epochs: 4
   agent_learning_rate: 2.0e-05
   logging_steps: 20
   num_generations: 4
   max_new_tokens: 256
   discount: 1.0
-  joint_mode: cross
+  joint_mode: aligned
   early_termination_threshold: null
   rollout_buffer_size: 4
   train_batch_size: 4

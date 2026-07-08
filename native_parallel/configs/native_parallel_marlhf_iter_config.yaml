@@ -54,15 +54,15 @@ marlhf_iter:
   - cuda:1
   num_agents: 2
   num_turns: 1
-  num_iterations: 2
-  num_train_epochs: 1
+  num_iterations: 4
+  num_train_epochs: 2
   agent_learning_rate: 2.0e-05
   logging_steps: 20
   num_generations: 4
-  preference_num_candidates: 4
-  comparator_num_candidates: 4
-  preference_pairs_per_sample: 2
-  pair_selection: reward_gap
+  preference_num_candidates: 20
+  comparator_num_candidates: null
+  preference_pairs_per_sample: 4
+  pair_selection: comparator_reward
   dpo_beta: 0.1
   use_environment_step: true
   environment_steps_per_pair: 2
@@ -82,7 +82,7 @@ marlhf_iter:
   reference_devices: null
   rl_algorithm: magrpo
   reward_model_name: Qwen/Qwen3-8B
-  reward_model_device: cuda:0
+  reward_model_device: cuda:2
   reward_learning_rate: 1.0e-05
   reward_num_train_epochs: 1
   reward_train_batch_size: 2
@@ -97,12 +97,12 @@ marlhf_iter:
   value_clip_range: 0.2
   critic_value_head_hidden_dim: null
   value_head_hidden_dim: null
-  preference_replay_mode: current
+  preference_replay_mode: lambda_decay
   preference_replay_k: null
-  preference_replay_lambda: null
+  preference_replay_lambda: 0.8
   preference_replay_sample_size: null
   preference_replay_dir: null
-  log_reward_distribution: false
+  log_reward_distribution: true
   preference_scoring_reward: task
   policy_checkpoint_dir: null
   comparator_policy: current
@@ -110,7 +110,9 @@ marlhf_iter:
   comparator_centralized_agent_index: 0
   comparator_model_name: null
   comparator_agents: null
-  comparator_devices: null
+  comparator_devices:
+  - cuda:3
+  - cuda:4
   comparator_history_k: null
   comparator_api_url: null
   comparator_api_format: generic

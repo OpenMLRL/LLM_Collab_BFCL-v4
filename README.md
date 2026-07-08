@@ -44,6 +44,7 @@ Key fields:
 - additional native entrypoints:
   - `native_parallel/train/train_iac.py`
   - `native_parallel/train/train_maac.py`
+  - `native_parallel/train/train_madpo.py`
   - `native_parallel/train/train_marlhf.py`
   - `native_parallel/train/train_madpo_iter.py`
   - `native_parallel/train/train_marlhf_iter.py`
@@ -79,10 +80,25 @@ python3 multiturn_flat/train/train_magrpo.py
 ```
 
 Both tasks use two Qwen3-8B agents, `self_select` decentralized prompting, no
-LoRA or quantization. MAGRPO uses `joint_mode: cross` and 2 training epochs by
-default. Native MARLHF, MADPO-Iter, and MARLHF-Iter use `joint_mode: aligned`,
-because the CoMLRL preference pair generation path only supports aligned
-candidates.
+LoRA or quantization. Native MAGRPO, MAAC, IAC, MADPO, and MARLHF defaults are
+aligned to roughly 5120 logged environment steps on the 320-row non-live native
+train split. Native MAGRPO, MADPO, MARLHF, MADPO-Iter, and MARLHF-Iter use
+`joint_mode: aligned`, because the CoMLRL preference pair generation path only
+supports aligned candidates.
+MAAC defaults to a third GPU for its shared critic, and MARLHF defaults to a
+third GPU for the learned reward model.
+
+Preference defaults follow the Code Generation CHE settings where possible
+while preserving BFCL's 5120-step budget: non-iter MADPO and MARLHF both use 40
+candidates and 8 selected pairs per sample. MADPO counts two joint responses per
+DPO pair under the BFCL step accounting, while MARLHF counts online rollout
+joint responses separately from preference pairs. Iterative MADPO/MARLHF use 20
+current candidates, 20 comparator candidates, 4 selected pairs per sample,
+`pair_selection: comparator_reward`, and lambda replay with
+`preference_replay_lambda: 0.8`. With 4 iterations, MADPO-Iter counts two joint
+responses per DPO pair, while MARLHF-Iter uses two online epochs with four
+aligned generations; both are 2560 environment steps per iteration and 10240
+total.
 There is intentionally no root training entrypoint or root BFCL helper package;
 launch each task through its own `train/` path.
 
