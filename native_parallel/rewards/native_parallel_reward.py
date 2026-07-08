@@ -115,6 +115,17 @@ def _cross_agent_overlap(agent_calls: Sequence[Sequence[ToolCall]]) -> int:
     return sum(max(0, count - 1) for count in key_counts.values())
 
 
+def _same_agent_duplicate_count(
+    raw_agent_calls: Sequence[Sequence[ToolCall]],
+    deduped_agent_calls: Sequence[Sequence[ToolCall]],
+) -> Tuple[int, List[int]]:
+    per_agent = [
+        max(0, len(raw_calls) - len(deduped_calls))
+        for raw_calls, deduped_calls in zip(raw_agent_calls, deduped_agent_calls)
+    ]
+    return sum(per_agent), per_agent
+
+
 def _clamp(value: float, lower: float, upper: float) -> float:
     return max(lower, min(upper, value))
 
@@ -130,6 +141,7 @@ class NativeParallelRewardConfig:
     overlap_penalty: float = 0.20
     lazy_agent_penalty: float = 0.15
     extra_call_penalty: float = 0.05
+    self_duplicate_penalty: float = 0.10
     min_reward: float = -0.4
     max_reward: float = 1.2
 
@@ -200,6 +212,11 @@ def score_native_parallel_response(
     balance_score = _balance_score(agent_counts, gold_count)
     overlap_count = _cross_agent_overlap(per_agent_calls)
     overlap_rate = min(1.0, overlap_count / max(1, gold_count))
+    self_duplicate_count, per_agent_duplicate_counts = _same_agent_duplicate_count(
+        raw_per_agent_calls, per_agent_calls
+    )
+    self_duplicate_rate = min(1.0, self_duplicate_count / max(1, gold_count))
+    self_duplicate_penalty = cfg.self_duplicate_penalty * self_duplicate_rate
     lazy_agents = sum(1 for count in agent_counts if count == 0)
     lazy_rate = lazy_agents / max(1, len(agent_counts))
     extra_calls = max(0, pred_count - gold_count)
@@ -217,6 +234,7 @@ def score_native_parallel_response(
         - cfg.overlap_penalty * overlap_rate
         - cfg.lazy_agent_penalty * lazy_rate
         - cfg.extra_call_penalty * extra_rate
+        - self_duplicate_penalty
     )
     reward = _clamp(reward, cfg.min_reward, cfg.max_reward)
 
@@ -235,10 +253,14 @@ def score_native_parallel_response(
         "balance_score": float(balance_score),
         "overlap_count": float(overlap_count),
         "overlap_rate": float(overlap_rate),
+        "self_duplicate_count": float(self_duplicate_count),
+        "self_duplicate_rate": float(self_duplicate_rate),
+        "self_duplicate_penalty": float(self_duplicate_penalty),
         "lazy_agents": float(lazy_agents),
         "lazy_rate": float(lazy_rate),
         "extra_call_rate": float(extra_rate),
         "agent_call_counts": agent_counts,
+        "per_agent_duplicate_counts": per_agent_duplicate_counts,
         "combined_calls": [
             {"name": call.name, "arguments": call.arguments} for call in combined_calls
         ],

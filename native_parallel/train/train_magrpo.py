@@ -239,6 +239,7 @@ def main() -> None:
         tokenizer=tokenizers if agent_names else tokenizers[0],
         model_config={
             "torch_dtype": model_config.torch_dtype,
+            "attn_implementation": model_config.attn_implementation,
             "special_tokens": model_config.special_tokens,
         },
         train_dataset=train_dataset,

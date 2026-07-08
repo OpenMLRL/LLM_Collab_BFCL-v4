@@ -4,9 +4,9 @@ agent_model:
   temperature: 0.7
   top_p: 0.8
   top_k: null
-  max_length: 4096
   special_tokens: {}
-  torch_dtype: null
+  torch_dtype: bfloat16
+  attn_implementation: eager
 
 agents: null
 
@@ -19,8 +19,6 @@ dataset:
   categories:
   - parallel
   - parallel_multiple
-  - live_parallel
-  - live_parallel_multiple
   task_types: null
   max_train_samples: null
   max_eval_samples: null
@@ -45,6 +43,7 @@ bfcl_reward:
   overlap_penalty: 0.20
   lazy_agent_penalty: 0.15
   extra_call_penalty: 0.05
+  self_duplicate_penalty: 0.10
   min_reward: -0.4
   max_reward: 1.2
 

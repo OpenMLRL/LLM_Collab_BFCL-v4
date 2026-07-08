@@ -17,9 +17,9 @@ class ModelConfig:
     temperature: Optional[float] = None
     top_p: Optional[float] = None
     top_k: Optional[int] = None
-    max_length: int = 4096
     special_tokens: Dict[str, str] = field(default_factory=dict)
     torch_dtype: Optional[str] = None
+    attn_implementation: Optional[str] = "sdpa"
 
     @classmethod
     def from_dict(
@@ -69,9 +69,9 @@ class ModelConfig:
             temperature=temperature,
             top_p=top_p,
             top_k=top_k,
-            max_length=config_dict.get("max_length", 4096),
             special_tokens=config_dict.get("special_tokens", {}),
             torch_dtype=(config_dict.get("torch_dtype") or config_dict.get("dtype")),
+            attn_implementation=config_dict.get("attn_implementation", "sdpa"),
         )
 
 
