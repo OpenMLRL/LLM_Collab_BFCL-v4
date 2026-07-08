@@ -16,8 +16,6 @@ dataset:
   categories:
   - parallel
   - parallel_multiple
-  - live_parallel
-  - live_parallel_multiple
   task_types: null
   max_eval_samples: null
 

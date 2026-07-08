@@ -13,6 +13,10 @@ from huggingface_hub import hf_hub_download
 DEFAULT_NATIVE_CATEGORIES = (
     "parallel",
     "parallel_multiple",
+)
+
+ALLOWED_NATIVE_CATEGORIES = (
+    *DEFAULT_NATIVE_CATEGORIES,
     "live_parallel",
     "live_parallel_multiple",
 )
@@ -71,11 +75,11 @@ def _filter_rows(
     max_samples: Optional[int] = None,
 ) -> List[Dict[str, Any]]:
     category_set = set(categories)
-    invalid = sorted(category_set - set(DEFAULT_NATIVE_CATEGORIES))
+    invalid = sorted(category_set - set(ALLOWED_NATIVE_CATEGORIES))
     if invalid:
         raise ValueError(
             "Native parallel categories must be one of "
-            f"{list(DEFAULT_NATIVE_CATEGORIES)}; got {invalid}."
+            f"{list(ALLOWED_NATIVE_CATEGORIES)}; got {invalid}."
         )
     task_type_set = set(task_types) if task_types else None
 

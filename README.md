@@ -34,8 +34,9 @@ Key fields:
 
 `native_parallel/` contains the native single-turn BFCL parallel task:
 
-- categories: `parallel`, `parallel_multiple`, `live_parallel`,
-  `live_parallel_multiple`
+- default categories: `parallel`, `parallel_multiple`
+- live categories remain supported via `dataset.categories` overrides:
+  `live_parallel`, `live_parallel_multiple`
 - reward: flat aggregate joint reward
 - dataset: `OpenMLRL/BFCL-V4-Parallel-Native`
 - config: `native_parallel/configs/native_parallel_magrpo_config.yaml`
