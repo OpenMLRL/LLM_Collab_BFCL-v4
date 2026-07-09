@@ -228,8 +228,6 @@ def build_native_ac_metrics_callback(
             )
             row: Dict[str, Any] = {
                 "sample_id": item.get("id", ""),
-                "official_category": item.get("official_category", ""),
-                "task_type": item.get("task_type", ""),
             }
             for key, value in detail.items():
                 if isinstance(value, (int, float)):

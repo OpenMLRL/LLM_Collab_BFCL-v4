@@ -185,22 +185,6 @@ def _summarize(records: List[Dict[str, Any]]) -> Dict[str, float]:
             float(record[key]) for record in records if isinstance(record.get(key), (int, float))
         )
 
-    for group_key in ("official_category", "task_type"):
-        group_values = sorted(
-            {str(record.get(group_key, "")) for record in records if record.get(group_key)}
-        )
-        for group_value in group_values:
-            safe_name = group_value.replace("/", "_")
-            subset = [
-                record
-                for record in records
-                if str(record.get(group_key, "")) == group_value
-            ]
-            summary[f"{group_key}/{safe_name}/exact_match"] = _mean(
-                float(record["exact_match"])
-                for record in subset
-                if isinstance(record.get("exact_match"), (int, float))
-            )
     return summary
 
 

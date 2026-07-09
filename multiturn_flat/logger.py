@@ -52,8 +52,6 @@ def build_multiturn_flat_eval_logger(
             )
             sample_metrics: Dict[str, Any] = {
                 "sample_id": row.get("id", sample_idx),
-                "official_category": row.get("official_category", ""),
-                "task_type": row.get("task_type", ""),
                 "turn_index": row.get("turn_index", ""),
             }
             for key, value in detail.items():
@@ -104,24 +102,4 @@ def aggregate_multiturn_flat_metrics(
         if values:
             aggregated[key] = float(np.mean(values))
 
-    for group_key in ("official_category", "task_type"):
-        group_values = sorted(
-            {str(sample.get(group_key, "")) for sample in metrics_list if sample.get(group_key)}
-        )
-        for group_value in group_values:
-            subset = [
-                sample
-                for sample in metrics_list
-                if str(sample.get(group_key, "")) == group_value
-            ]
-            exact_values = [
-                sample["turn_1/exact_match"]
-                for sample in subset
-                if "turn_1/exact_match" in sample
-            ]
-            if exact_values:
-                safe_name = group_value.replace("/", "_")
-                aggregated[f"{group_key}/{safe_name}/exact_match"] = float(
-                    np.mean(exact_values)
-                )
     return aggregated
