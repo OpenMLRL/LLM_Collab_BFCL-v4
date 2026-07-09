@@ -21,8 +21,8 @@ dataset:
   name: OpenMLRL/BFCL-V4-Parallel-Native
   type: bfcl
   version: v4
-  train_split: train
-  eval_split: eval
+  train_split: train[:160]
+  eval_split: eval[:40]
   categories:
   - parallel
   - parallel_multiple
