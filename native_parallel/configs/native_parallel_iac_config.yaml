@@ -55,11 +55,11 @@ iac:
   critic_devices: null
   num_agents: 2
   num_turns: 1
-  num_train_epochs: 4
+  num_train_epochs: 16
   agent_learning_rate: 5.0e-06
   critic_learning_rate: 5.0e-06
   logging_steps: 20
-  num_generations: 4
+  num_generations: 1
   max_new_tokens: 256
   discount: 1.0
   early_termination_threshold: null

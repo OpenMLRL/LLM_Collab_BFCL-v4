@@ -88,6 +88,11 @@ supports aligned candidates.
 MAAC defaults to a third GPU for its shared critic, and MARLHF defaults to a
 third GPU for the learned reward model.
 
+Native MAAC/IAC use one generation per prompt and 16 training epochs. With
+`rollout_buffer_size: 4` and `train_batch_size: 4`, they keep the same 5120
+environment-step budget and the same total number of actor-critic updates while
+avoiding the larger per-prompt generation footprint from four return sequences.
+
 Preference defaults follow the Code Generation CHE settings where possible
 while preserving BFCL's 5120-step budget: non-iter MADPO and MARLHF both use 40
 candidates and 8 selected pairs per sample. MADPO counts two joint responses per
