@@ -72,7 +72,7 @@ iac:
   critic_type: v
   critic_value_head_hidden_dim: null
   value_head_hidden_dim: null
-  eval_interval: 2
+  eval_interval: 8
   eval_num_samples: 16
   eval_batch_size: 1
   reference_kl_enabled: false
