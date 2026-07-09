@@ -26,7 +26,7 @@ dataset:
 seed: 42
 
 output:
-  base_dir: output_native_parallel_magrpo
+  base_dir: output_native_parallel_madpo_iter
   verbose: false
   save_final_model: false
 
@@ -47,17 +47,25 @@ bfcl_reward:
   min_reward: -0.4
   max_reward: 1.2
 
-magrpo:
+madpo_iter:
   parallel_training: mp
   agent_devices:
   - cuda:0
   - cuda:1
   num_agents: 2
   num_turns: 1
-  num_train_epochs: 4
+  num_iterations: 4
+  num_train_epochs: 1
   agent_learning_rate: 2.0e-05
   logging_steps: 20
   num_generations: 4
+  preference_num_candidates: 20
+  comparator_num_candidates: null
+  preference_pairs_per_sample: 4
+  pair_selection: comparator_reward
+  dpo_beta: 0.1
+  use_environment_step: true
+  environment_steps_per_pair: 2
   max_new_tokens: 256
   discount: 1.0
   joint_mode: aligned
@@ -72,6 +80,34 @@ magrpo:
   reference_kl_enabled: false
   reference_kl_coef: 0.1
   reference_devices: null
+  preference_replay_mode: lambda_decay
+  preference_replay_k: null
+  preference_replay_lambda: 0.8
+  preference_replay_sample_size: null
+  preference_replay_dir: null
+  log_reward_distribution: true
+  policy_checkpoint_dir: null
+  comparator_policy: current
+  comparator_generation_mode: decentralized
+  comparator_centralized_agent_index: 0
+  comparator_model_name: null
+  comparator_agents: null
+  comparator_devices:
+  - cuda:2
+  - cuda:3
+  comparator_history_k: null
+  comparator_api_url: null
+  comparator_api_format: generic
+  comparator_api_model: null
+  comparator_api_max_n_per_request: null
+  comparator_api_timeout: 120.0
+  comparator_api_headers: null
+  comparator_api_key: null
+  comparator_api_key_env: null
+  comparator_api_key_header: Authorization
+  comparator_api_key_prefix: Bearer
+  comparator_api_response_field: completions
+  comparator_api_extra_body: null
 
 reward_processor:
   enabled: false
@@ -82,10 +118,10 @@ wandb:
   enabled: true
   project: bfcl-v4
   entity: OpenMLRL
-  name: native_parallel_magrpo_qwen3_8b
-  dir: output_native_parallel_magrpo
+  name: native_parallel_madpo_iter_qwen3_8b
+  dir: output_native_parallel_madpo_iter
   tags:
-  - magrpo
+  - madpo_iter
   - bfcl
   - v4
   - native_parallel

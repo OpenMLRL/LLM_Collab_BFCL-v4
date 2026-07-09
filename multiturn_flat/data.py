@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Sequence
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
 from datasets import load_dataset
 from huggingface_hub import hf_hub_download
@@ -46,14 +46,25 @@ def _load_local_dataset(dataset_name: str, split: str) -> List[Dict[str, Any]]:
     return _read_jsonl(split_path)
 
 
+def _split_name_and_limit(split: str) -> Tuple[str, Optional[int]]:
+    text = str(split).strip()
+    if text.endswith("]") and "[:" in text:
+        base, suffix = text.split("[:", 1)
+        count_text = suffix[:-1].strip()
+        if count_text.isdigit():
+            return base, int(count_text)
+    return text, None
+
+
 def _load_rows(dataset_name: str, split: str) -> List[Dict[str, Any]]:
+    base_split, _ = _split_name_and_limit(split)
     if Path(dataset_name).exists():
-        return _load_local_dataset(dataset_name, split)
-    if "/" in dataset_name and split in {"train", "eval", "validation", "test"}:
+        return _load_local_dataset(dataset_name, base_split)
+    if "/" in dataset_name and base_split in {"train", "eval", "validation", "test"}:
         try:
             downloaded = hf_hub_download(
                 repo_id=dataset_name,
-                filename=f"{split}.jsonl",
+                filename=f"{base_split}.jsonl",
                 repo_type="dataset",
             )
             return _read_jsonl(Path(downloaded))
@@ -92,8 +103,8 @@ def _filter_rows(
         item.setdefault("test", "")
         item.setdefault("entry_point", "")
         filtered.append(item)
-        if max_samples is not None and len(filtered) >= int(max_samples):
-            break
+    if max_samples is not None:
+        return filtered[: int(max_samples)]
     return filtered
 
 
@@ -105,13 +116,21 @@ def load_multiturn_flat_dataset(
     task_types: Optional[Any] = None,
     max_samples: Optional[int] = None,
 ) -> List[Dict[str, Any]]:
+    _, split_limit = _split_name_and_limit(split)
+    effective_max_samples = split_limit
+    if max_samples is not None:
+        effective_max_samples = (
+            min(int(max_samples), split_limit)
+            if split_limit is not None
+            else int(max_samples)
+        )
     rows = _load_rows(dataset_name, split)
     selected_categories = _as_list(categories) or list(DEFAULT_MULTITURN_CATEGORIES)
     filtered = _filter_rows(
         rows,
         categories=selected_categories,
         task_types=_as_list(task_types),
-        max_samples=max_samples,
+        max_samples=effective_max_samples,
     )
     if not filtered:
         raise ValueError(

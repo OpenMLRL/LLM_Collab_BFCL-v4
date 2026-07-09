@@ -12,7 +12,7 @@ dataset:
   name: OpenMLRL/BFCL-V4-Parallel-Multi-Turn
   type: bfcl
   version: v4
-  eval_split: eval
+  eval_split: eval[:102]
   categories:
   - multi_turn_base_step
   - multi_turn_long_context_step

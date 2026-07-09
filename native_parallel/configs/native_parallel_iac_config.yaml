@@ -26,7 +26,7 @@ dataset:
 seed: 42
 
 output:
-  base_dir: output_native_parallel_magrpo
+  base_dir: output_native_parallel_iac
   verbose: false
   save_final_model: false
 
@@ -47,25 +47,31 @@ bfcl_reward:
   min_reward: -0.4
   max_reward: 1.2
 
-magrpo:
+iac:
   parallel_training: mp
   agent_devices:
   - cuda:0
   - cuda:1
+  critic_devices: null
   num_agents: 2
   num_turns: 1
-  num_train_epochs: 4
-  agent_learning_rate: 2.0e-05
+  num_train_epochs: 16
+  agent_learning_rate: 5.0e-06
+  critic_learning_rate: 5.0e-06
   logging_steps: 20
-  num_generations: 4
+  num_generations: 1
   max_new_tokens: 256
   discount: 1.0
-  joint_mode: aligned
   early_termination_threshold: null
   rollout_buffer_size: 4
   train_batch_size: 4
+  value_clip_range: 0.2
+  value_loss_coef: 0.6
   advantage_normalization: true
-  advantage_mode: mean
+  use_separate_critic: false
+  critic_type: v
+  critic_value_head_hidden_dim: null
+  value_head_hidden_dim: null
   eval_interval: 2
   eval_num_samples: 16
   eval_batch_size: 1
@@ -82,10 +88,10 @@ wandb:
   enabled: true
   project: bfcl-v4
   entity: OpenMLRL
-  name: native_parallel_magrpo_qwen3_8b
-  dir: output_native_parallel_magrpo
+  name: native_parallel_iac_qwen3_8b
+  dir: output_native_parallel_iac
   tags:
-  - magrpo
+  - iac
   - bfcl
   - v4
   - native_parallel

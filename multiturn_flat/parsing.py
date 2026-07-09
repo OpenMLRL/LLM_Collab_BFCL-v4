@@ -39,8 +39,32 @@ def gold_to_tool_calls(ground_truth: Sequence[Dict[str, Any]]) -> List[ToolCall]
         if not isinstance(item, dict) or not item:
             continue
         name, arguments = next(iter(item.items()))
-        calls.append(ToolCall(str(name), dict(arguments or {})))
+        calls.append(ToolCall(str(name), _coerce_arguments(arguments)))
     return calls
+
+
+def _coerce_arguments(args: Any) -> Dict[str, Any]:
+    if args is None:
+        return {}
+    if isinstance(args, dict):
+        return dict(args)
+    if isinstance(args, str):
+        text = args.strip()
+        if not text:
+            return {}
+        for loader in (json.loads, ast.literal_eval):
+            try:
+                parsed = loader(text)
+            except (TypeError, ValueError, SyntaxError, json.JSONDecodeError):
+                continue
+            if parsed is args:
+                return {}
+            return _coerce_arguments(parsed)
+        return {}
+    try:
+        return dict(args)
+    except (TypeError, ValueError):
+        return {}
 
 
 def _strip_fences(text: str) -> str:
@@ -61,10 +85,14 @@ def _convert_json_call(obj: Any) -> List[ToolCall]:
         return []
     if "name" in obj:
         args = obj.get("arguments", obj.get("parameters", {}))
-        return [ToolCall(str(obj["name"]), dict(args or {}), raw=json.dumps(obj))]
+        return [
+            ToolCall(str(obj["name"]), _coerce_arguments(args), raw=json.dumps(obj))
+        ]
     if "function" in obj:
         args = obj.get("arguments", obj.get("parameters", {}))
-        return [ToolCall(str(obj["function"]), dict(args or {}), raw=json.dumps(obj))]
+        return [
+            ToolCall(str(obj["function"]), _coerce_arguments(args), raw=json.dumps(obj))
+        ]
     if len(obj) == 1:
         name, args = next(iter(obj.items()))
         if isinstance(args, dict):

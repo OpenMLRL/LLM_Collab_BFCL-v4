@@ -26,7 +26,7 @@ dataset:
 seed: 42
 
 output:
-  base_dir: output_native_parallel_magrpo
+  base_dir: output_native_parallel_marlhf
   verbose: false
   save_final_model: false
 
@@ -47,7 +47,7 @@ bfcl_reward:
   min_reward: -0.4
   max_reward: 1.2
 
-magrpo:
+marlhf:
   parallel_training: mp
   agent_devices:
   - cuda:0
@@ -58,6 +58,12 @@ magrpo:
   agent_learning_rate: 2.0e-05
   logging_steps: 20
   num_generations: 4
+  preference_num_candidates: 40
+  preference_pairs_per_sample: 8
+  pair_selection: reward_gap
+  dpo_beta: 0.1
+  use_environment_step: true
+  environment_steps_per_pair: 2
   max_new_tokens: 256
   discount: 1.0
   joint_mode: aligned
@@ -72,6 +78,23 @@ magrpo:
   reference_kl_enabled: false
   reference_kl_coef: 0.1
   reference_devices: null
+  rl_algorithm: magrpo
+  reward_model_name: Qwen/Qwen3-8B
+  reward_model_device: cuda:2
+  reward_learning_rate: 1.0e-05
+  reward_num_train_epochs: 1
+  reward_train_batch_size: 2
+  reward_max_length: 4096
+  reward_freeze_backbone: false
+  critic_model_name: null
+  critic_learning_rate: null
+  critic_devices: null
+  use_separate_critic: true
+  critic_type: v
+  value_loss_coef: 0.6
+  value_clip_range: 0.2
+  critic_value_head_hidden_dim: null
+  value_head_hidden_dim: null
 
 reward_processor:
   enabled: false
@@ -82,10 +105,10 @@ wandb:
   enabled: true
   project: bfcl-v4
   entity: OpenMLRL
-  name: native_parallel_magrpo_qwen3_8b
-  dir: output_native_parallel_magrpo
+  name: native_parallel_marlhf_qwen3_8b
+  dir: output_native_parallel_marlhf
   tags:
-  - magrpo
+  - marlhf
   - bfcl
   - v4
   - native_parallel

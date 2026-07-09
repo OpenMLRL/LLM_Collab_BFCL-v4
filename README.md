@@ -3,9 +3,9 @@
 This repo provides BFCL function-calling environments for CoMLRL. The current
 layout follows the task-separated style used by the Minecraft collaboration
 repos: each BFCL task directory is a self-contained path with its own config,
-dataset loader, formatter, parser, logger, reward, and MAGRPO training
-entrypoint. The two task directories do not import each other and there is no
-root shared BFCL runtime layer.
+dataset loader, formatter, parser, logger, reward, and training entrypoints.
+The two task directories do not import each other and there is no root shared
+BFCL runtime layer.
 
 ## Dataset
 
@@ -15,6 +15,11 @@ The task datasets are split on Hugging Face:
 - `OpenMLRL/BFCL-V4-Parallel-Multi-Turn`
 
 Both are derived from official BFCL v4 data.
+
+Default configs follow the writing repo's split-slice style and use the first
+half of each selected train/eval split via `dataset.train_split` and
+`dataset.eval_split`, for example `train[:160]` and `eval[:40]` for native
+parallel. Set those fields back to `train` and `eval` to use the full splits.
 
 Key fields:
 
@@ -39,8 +44,15 @@ Key fields:
   `live_parallel`, `live_parallel_multiple`
 - reward: flat aggregate joint reward
 - dataset: `OpenMLRL/BFCL-V4-Parallel-Native`
-- config: `native_parallel/configs/native_parallel_magrpo_config.yaml`
-- entrypoint: `native_parallel/train/train_magrpo.py`
+- MAGRPO config: `native_parallel/configs/native_parallel_magrpo_config.yaml`
+- MAGRPO entrypoint: `native_parallel/train/train_magrpo.py`
+- additional native entrypoints:
+  - `native_parallel/train/train_iac.py`
+  - `native_parallel/train/train_maac.py`
+  - `native_parallel/train/train_madpo.py`
+  - `native_parallel/train/train_marlhf.py`
+  - `native_parallel/train/train_madpo_iter.py`
+  - `native_parallel/train/train_marlhf_iter.py`
 - local modules: `data.py`, `formatting.py`, `parsing.py`, `logger.py`,
   `rewards/native_parallel_reward.py`
 
@@ -73,8 +85,31 @@ python3 multiturn_flat/train/train_magrpo.py
 ```
 
 Both tasks use two Qwen3-8B agents, `self_select` decentralized prompting, no
-LoRA or quantization, `joint_mode: cross`, and 2 training epochs by default.
-There is intentionally no root MAGRPO entrypoint or root BFCL helper package;
+LoRA or quantization. Native MAGRPO, MAAC, IAC, MADPO, and MARLHF defaults are
+aligned to roughly 2560 logged environment steps on the first half of the
+non-live native train split. Native MAGRPO, MADPO, MARLHF, MADPO-Iter, and
+MARLHF-Iter use `joint_mode: aligned`, because the CoMLRL preference pair
+generation path only supports aligned candidates.
+MAAC defaults to a third GPU for its shared critic, and MARLHF defaults to a
+third GPU for the learned reward model.
+
+Native MAAC/IAC use one generation per prompt and 16 training epochs. With
+`rollout_buffer_size: 4` and `train_batch_size: 4`, they keep the same 2560
+environment-step budget and the same total number of actor-critic updates while
+avoiding the larger per-prompt generation footprint from four return sequences.
+
+Preference defaults follow the Code Generation CHE settings where possible
+while preserving BFCL's non-iter step budget: non-iter MADPO and MARLHF both
+use 40 candidates and 8 selected pairs per sample. MADPO counts two joint
+responses per DPO pair under the BFCL step accounting, while MARLHF counts
+online rollout joint responses separately from preference pairs. Iterative
+MADPO/MARLHF use 20 current candidates, 20 comparator candidates, 4 selected
+pairs per sample, `pair_selection: comparator_reward`, and lambda replay with
+`preference_replay_lambda: 0.8`. With 4 iterations, MADPO-Iter counts two joint
+responses per DPO pair, while MARLHF-Iter uses two online epochs with four
+aligned generations; both are 1280 environment steps per iteration and 5120
+total.
+There is intentionally no root training entrypoint or root BFCL helper package;
 launch each task through its own `train/` path.
 
 Filter by heuristic task type:
