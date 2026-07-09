@@ -57,7 +57,6 @@ madpo:
   num_train_epochs: 1
   agent_learning_rate: 2.0e-05
   logging_steps: 20
-  num_generations: 4
   preference_num_candidates: 40
   preference_pairs_per_sample: 8
   pair_selection: reward_gap
