@@ -76,7 +76,7 @@ maac:
   value_loss_coef: 0.6
   advantage_normalization: true
   critic_type: v
-  eval_interval: 8
+  eval_interval: 32
   eval_num_samples: 16
   eval_batch_size: 1
   reference_kl_enabled: false
