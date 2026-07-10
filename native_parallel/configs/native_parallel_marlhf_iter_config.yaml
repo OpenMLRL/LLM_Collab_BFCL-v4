@@ -110,9 +110,7 @@ marlhf_iter:
   comparator_centralized_agent_index: 0
   comparator_model_name: null
   comparator_agents: null
-  comparator_devices:
-  - cuda:3
-  - cuda:4
+  comparator_devices: cuda:3
   comparator_history_k: null
   comparator_api_url: null
   comparator_api_format: generic
