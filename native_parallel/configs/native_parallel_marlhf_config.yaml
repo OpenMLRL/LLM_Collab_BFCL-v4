@@ -1,5 +1,5 @@
 agent_model:
-  name: Qwen/Qwen3-8B
+  name: Qwen/Qwen3-4B-Instruct-2507
   type: qwen
   temperature: 0.7
   top_p: 0.8
@@ -79,7 +79,7 @@ marlhf:
   reference_kl_coef: 0.1
   reference_devices: null
   rl_algorithm: magrpo
-  reward_model_name: Qwen/Qwen3-8B
+  reward_model_name: Qwen/Qwen3-4B-Instruct-2507
   reward_model_device: cuda:2
   reward_learning_rate: 1.0e-05
   reward_num_train_epochs: 1
@@ -105,12 +105,12 @@ wandb:
   enabled: true
   project: bfcl-v4
   entity: OpenMLRL
-  name: native_parallel_marlhf_qwen3_8b
+  name: native_parallel_marlhf_qwen3_4b_instruct_2507
   dir: output_native_parallel_marlhf
   tags:
   - marlhf
   - bfcl
   - v4
   - native_parallel
-  - qwen3-8b
+  - qwen3-4b-instruct-2507
   - decentralized

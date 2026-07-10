@@ -1,5 +1,5 @@
 agent_model:
-  name: Qwen/Qwen3-8B
+  name: Qwen/Qwen3-4B-Instruct-2507
   type: qwen
   temperature: 0.7
   top_p: 0.8
@@ -88,12 +88,12 @@ wandb:
   enabled: true
   project: bfcl-v4
   entity: OpenMLRL
-  name: native_parallel_iac_qwen3_8b
+  name: native_parallel_iac_qwen3_4b_instruct_2507
   dir: output_native_parallel_iac
   tags:
   - iac
   - bfcl
   - v4
   - native_parallel
-  - qwen3-8b
+  - qwen3-4b-instruct-2507
   - decentralized

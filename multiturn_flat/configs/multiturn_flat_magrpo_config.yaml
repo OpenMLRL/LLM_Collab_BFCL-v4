@@ -1,5 +1,5 @@
 agent_model:
-  name: Qwen/Qwen3-8B
+  name: Qwen/Qwen3-4B-Instruct-2507
   type: qwen
   temperature: 0.7
   top_p: 0.8
@@ -85,12 +85,12 @@ wandb:
   enabled: true
   project: bfcl-v4
   entity: OpenMLRL
-  name: multiturn_flat_magrpo_qwen3_8b
+  name: multiturn_flat_magrpo_qwen3_4b_instruct_2507
   dir: output_multiturn_flat_magrpo
   tags:
   - magrpo
   - bfcl
   - v4
   - multiturn_flat
-  - qwen3-8b
+  - qwen3-4b-instruct-2507
   - decentralized

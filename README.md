@@ -84,7 +84,7 @@ field is present.
 python3 multiturn_flat/train/train_magrpo.py
 ```
 
-Both tasks use two Qwen3-8B agents, `self_select` decentralized prompting, no
+Both tasks use two Qwen3-4B-Instruct-2507 agents, `self_select` decentralized prompting, no
 LoRA or quantization. Native MAGRPO, MAAC, IAC, MADPO, and MARLHF defaults are
 aligned to roughly 2560 logged environment steps on the first half of the
 non-live native train split. Native MAGRPO, MADPO, MARLHF, MADPO-Iter, and
@@ -152,7 +152,7 @@ tool execution.
 ## Baselines
 
 Each task directory has an independent raw single-agent baseline. These scripts
-do not train; they load the same Qwen3-8B model, let one agent answer the eval
+do not train; they load the same Qwen3-4B-Instruct-2507 model, let one agent answer the eval
 split, and report the original model's joint `turn_1/exact_match`.
 
 Native parallel:

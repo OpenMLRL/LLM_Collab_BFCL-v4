@@ -168,7 +168,7 @@ def build_wandb_config(
             "bfcl",
             "v4",
             "native_parallel",
-            "qwen3-8b",
+            "qwen3-4b-instruct-2507",
             "decentralized",
         ],
     )
