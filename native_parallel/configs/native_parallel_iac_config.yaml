@@ -80,8 +80,8 @@ iac:
   reference_devices: null
 
 reward_processor:
-  enabled: false
-  scale_factor: 1.0
+  enabled: true
+  scale_factor: 4.0
   shift: null
 
 wandb:

@@ -105,7 +105,7 @@ marlhf_iter:
   log_reward_distribution: true
   preference_scoring_reward: task
   policy_checkpoint_dir: null
-  comparator_policy: current
+  comparator_policy: current_copy
   comparator_generation_mode: decentralized
   comparator_centralized_agent_index: 0
   comparator_model_name: null
@@ -128,8 +128,8 @@ marlhf_iter:
   comparator_api_extra_body: null
 
 reward_processor:
-  enabled: false
-  scale_factor: 1.0
+  enabled: true
+  scale_factor: 4.0
   shift: null
 
 wandb:
