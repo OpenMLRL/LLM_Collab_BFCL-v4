@@ -27,7 +27,7 @@ seed: 42
 
 output:
   base_dir: output_native_parallel_marlhf_iter
-  verbose: false
+  verbose: true
   save_final_model: false
 
 bfcl:
