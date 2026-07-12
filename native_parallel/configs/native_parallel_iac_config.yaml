@@ -55,7 +55,7 @@ iac:
   critic_devices: null
   num_agents: 2
   num_turns: 1
-  num_train_epochs: 16
+  num_train_epochs: 32
   agent_learning_rate: 5.0e-06
   critic_learning_rate: 5.0e-06
   logging_steps: 20

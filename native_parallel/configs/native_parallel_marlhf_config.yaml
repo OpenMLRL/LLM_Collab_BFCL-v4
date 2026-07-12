@@ -54,12 +54,12 @@ marlhf:
   - cuda:1
   num_agents: 2
   num_turns: 1
-  num_train_epochs: 4
+  num_train_epochs: 8
   agent_learning_rate: 2.0e-05
   logging_steps: 20
   num_generations: 4
-  preference_num_candidates: 40
-  preference_pairs_per_sample: 8
+  preference_num_candidates: 80
+  preference_pairs_per_sample: 16
   pair_selection: reward_gap
   dpo_beta: 0.1
   use_environment_step: true
