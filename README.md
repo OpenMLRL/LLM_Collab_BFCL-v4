@@ -99,8 +99,8 @@ environment-step budget and the same total number of actor-critic updates while
 avoiding the larger per-prompt generation footprint from four return sequences.
 
 Preference defaults follow the Code Generation CHE settings where possible
-while preserving BFCL's non-iter step budget: non-iter MADPO and MARLHF both
-use 40 candidates and 8 selected pairs per sample. MADPO counts two joint
+while preserving BFCL's non-iter step budget. Non-iter MADPO and MARLHF use 80
+candidates and select 16 reward-gap pairs per sample. MADPO counts two joint
 responses per DPO pair under the BFCL step accounting, while MARLHF counts
 online rollout joint responses separately from preference pairs. Iterative
 MADPO/MARLHF use 20 current candidates, 20 comparator candidates, 4 selected
