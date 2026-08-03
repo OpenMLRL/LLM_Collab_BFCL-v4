@@ -16,6 +16,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from comlrl.trainers.preference import MARLHFIterConfig, MARLHFIterTrainer
+from native_parallel.centralized_comparator import BFCLCentralizedComparatorAdapter
 from native_parallel.config import Config, add_config_args, parse_overrides
 from native_parallel.train.common import (
     build_trainer_args,
@@ -81,6 +82,7 @@ def main() -> None:
         eval_logger=components.eval_logger,
         eval_aggregator=components.eval_aggregator,
         metrics_callback=components.metrics_callback,
+        centralized_comparator_adapter=BFCLCentralizedComparatorAdapter(),
         args=marlhf_args,
     )
     trainer.train()

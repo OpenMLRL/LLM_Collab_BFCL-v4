@@ -16,6 +16,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from comlrl.trainers.preference import MADPOIterConfig, MADPOIterTrainer
+from native_parallel.centralized_comparator import BFCLCentralizedComparatorAdapter
 from native_parallel.config import Config, add_config_args, parse_overrides
 from native_parallel.train.common import (
     build_trainer_args,
@@ -80,6 +81,7 @@ def main() -> None:
         ),
         eval_logger=components.eval_logger,
         eval_aggregator=components.eval_aggregator,
+        centralized_comparator_adapter=BFCLCentralizedComparatorAdapter(),
         args=madpo_args,
     )
     trainer.train()
