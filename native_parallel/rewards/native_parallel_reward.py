@@ -157,6 +157,10 @@ class NativeParallelReward:
     config: NativeParallelRewardConfig = field(default_factory=NativeParallelRewardConfig)
     last_details: List[Dict[str, Any]] = field(default_factory=list)
 
+    @property
+    def reward_range(self) -> Tuple[float, float]:
+        return float(self.config.min_reward), float(self.config.max_reward)
+
     def __call__(self, *agent_completions, batch_items=None, prompts=None) -> List[float]:
         del prompts
         if batch_items is None:
