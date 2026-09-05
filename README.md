@@ -169,3 +169,28 @@ python3 multiturn_flat/baseline/single_agent/eval_single_agent.py
 
 Both write `predictions.jsonl` and `summary.json` under their configured output
 directory and log the summary to wandb when `wandb.enabled: true`.
+
+## Centralized Preference Collaboration
+
+The native-parallel MADPO, MARLHF, and iterative trainers support one trainable
+model generating all task roles. The default remains decentralized. Enable it
+with:
+
+```bash
+python native_parallel/train/train_madpo_iter.py --config native_parallel/configs/native_parallel_madpo_iter_config.yaml --override madpo_iter.collaboration_mode=centralized
+python native_parallel/train/train_marlhf_iter.py --config native_parallel/configs/native_parallel_marlhf_iter_config.yaml --override marlhf_iter.collaboration_mode=centralized
+```
+
+Use the `madpo` / `marlhf` prefix for the non-iterative scripts. Keep
+`num_agents=2` for task roles; `agent_model` is loaded once. Explicit `agents`
+and actor device lists must describe one model. `BFCLCentralizedComparatorAdapter`
+combines both original function-calling prompts and extracts `<agent_0>` /
+`<agent_1>` outputs only for task rewards and evaluation. Policy training,
+preference replay, and learned reward scoring retain the full joint text.
+Iterative comparators automatically use centralized generation (actor index 0)
+for current, history, external model, and API sources.
+
+`max_new_tokens` limits the whole joint response; consider doubling the previous
+per-role budget. MARLHF `reward_max_length` must fit the joint prompt and all
+responses. Reward/comparator devices remain independently configurable. Existing
+decentralized behavior and step counters are unchanged.
