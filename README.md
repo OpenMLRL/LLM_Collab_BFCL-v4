@@ -170,6 +170,17 @@ python3 multiturn_flat/baseline/single_agent/eval_single_agent.py
 Both write `predictions.jsonl` and `summary.json` under their configured output
 directory and log the summary to wandb when `wandb.enabled: true`.
 
+## Centralized MAGRPO
+
+`native_parallel/train/train_magrpo.py` supports
+`--override magrpo.collaboration_mode=centralized magrpo.num_turns=1`.
+It trains one joint-input/joint-output actor using the task reward, without a
+comparator, preference dataset, or learned reward model. The BFCL adapter splits
+role outputs for rewards and evaluation. `max_new_tokens` is the total
+joint-response budget. The default remains decentralized. Set
+`agent_model.attn_implementation=sdpa` when testing the memory-efficient attention
+backend.
+
 ## Centralized Preference Collaboration
 
 The native-parallel MADPO, MARLHF, and iterative trainers support one trainable

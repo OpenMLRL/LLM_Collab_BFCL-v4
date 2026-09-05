@@ -4,6 +4,31 @@ from types import SimpleNamespace
 
 import pytest
 
+
+@pytest.mark.parametrize("mode", ["centralized", "decentralized"])
+def test_magrpo_entrypoint_selects_joint_actor(mode, monkeypatch, tmp_path):
+    from comlrl.trainers import reinforce
+    entrypoint = importlib.import_module("native_parallel.train.train_magrpo")
+    observed = {}
+
+    def capture(**kwargs):
+        observed.update(kwargs)
+        return SimpleNamespace(train=lambda: None)
+
+    monkeypatch.setattr(reinforce, "MAGRPOTrainer", capture)
+    monkeypatch.setattr(reinforce, "CentralizedMAGRPOTrainer", capture)
+    monkeypatch.setattr(entrypoint, "load_native_parallel_dataset",
+                        lambda *a, **kw: [{"prompt": "Task", "id": "task"}])
+    monkeypatch.setattr(entrypoint.AutoTokenizer, "from_pretrained", lambda *a, **kw:
+                        SimpleNamespace(pad_token="pad", eos_token="eos"))
+    monkeypatch.setattr(sys, "argv", ["train", "--override",
+                        f"magrpo.collaboration_mode={mode}",
+                        f"output.base_dir={tmp_path}", "output.save_final_model=false"])
+    entrypoint.main()
+    assert observed["num_agents"] == 2
+    assert ("centralized_adapter" in observed) == (mode == "centralized")
+    assert getattr(observed["args"], "collaboration_mode", "decentralized") == mode
+
 from comlrl.trainers.preference.collaboration import CentralizedCollaboration
 
 
