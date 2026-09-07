@@ -205,3 +205,8 @@ for current, history, external model, and API sources.
 per-role budget. MARLHF `reward_max_length` must fit the joint prompt and all
 responses. Reward/comparator devices remain independently configurable. Existing
 decentralized behavior and step counters are unchanged.
+
+## Slurm runtime cache
+
+Training launchers isolate unset CUDA JIT caches per job on node-local storage.
+Update CoMLRL alongside this checkout; see the [runtime cache guide](docs/runtime_cache.md).
