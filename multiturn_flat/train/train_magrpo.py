@@ -119,6 +119,10 @@ def _wandb_config(config: Config, output_dir: str, magrpo_config: Dict[str, Any]
 
 
 def main() -> None:
+    from comlrl.runtime import configure_job_cuda_cache
+
+    configure_job_cuda_cache()
+
     parser = argparse.ArgumentParser(
         description="Train MAGRPO on flattened BFCL multi-turn step tasks."
     )
